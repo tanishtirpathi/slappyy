@@ -74,12 +74,15 @@ function toggleWindow() {
 ipcMain.on("impact-detected", () => playSound());
 
 ipcMain.handle("get-sensitivity", () => {
-  const raw = Number(store.get("sensitivityMultiplier", 2.5));
-  return Number.isFinite(raw) && raw > 0 ? raw : 2.5;
+  const raw = Number(store.get("sensitivityMultiplier", 4));
+  if (!Number.isFinite(raw)) return 4;
+  return Math.max(1, Math.min(10, raw));
 });
 
 ipcMain.on("set-sensitivity", (_, value) => {
-  store.set("sensitivityMultiplier", value);
+  const numeric = Number(value);
+  const next = Number.isFinite(numeric) ? Math.max(1, Math.min(10, numeric)) : 4;
+  store.set("sensitivityMultiplier", next);
 });
 
 ipcMain.on("close-window", () => win?.hide());
