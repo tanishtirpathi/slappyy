@@ -8,7 +8,7 @@
     "start": "electron ."
   },
   "keywords": [],
-  "author": "",
+  "author": "Tanish Tirpathi",
   "license": "ISC",
   "type": "module",
   "dependencies": {

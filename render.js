@@ -1,5 +1,9 @@
 const { ipcRenderer } = require("electron");
 
+const hitSound = new Audio("slap.wav");
+hitSound.preload = "auto";
+hitSound.volume = 1;
+
 // ─── State ────────────────────────────────────────────────────────────────────
 let audioContext = null;
 let analyser     = null;
@@ -91,6 +95,15 @@ function bumpHits() {
   setTimeout(() => { volFill.style.background = "#22c55e"; }, 250);
 }
 
+function playHitSoundNow() {
+  // Rewind and play immediately in renderer to avoid process-spawn delay.
+  hitSound.currentTime = 0;
+  hitSound.play().catch(() => {
+    // Fallback if renderer playback is blocked for any reason.
+    ipcRenderer.send("impact-detected");
+  });
+}
+
 // ─── Audio ────────────────────────────────────────────────────────────────────
 async function startListening() {
   if (listening) return;
@@ -151,7 +164,7 @@ async function startListening() {
         now - lastTrigger > COOLDOWN &&
         smoothedVolume > 500
       ) {
-        ipcRenderer.send("impact-detected");
+        playHitSoundNow();
         bumpHits();
         lastTrigger = now;
       }
